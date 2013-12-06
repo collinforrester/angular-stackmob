@@ -1,0 +1,134 @@
+<div class="header">
+    <h3 class="text-muted">sample app</h3>
+</div>
+
+<div class="jumbotron">
+    <h1>angular-stackmob sample-app</h1>
+    <p class="lead">
+        Built with
+        <br>
+        <img src="images/yeoman.png" alt="I'm Yeoman">
+        <br>
+    </p>
+</div>
+
+<div class="row marketing">
+    <h3>Make Sure You:</h3>
+    <h4>1. Set your public API key</h4>
+    <p>
+        <code>
+            StackmobProvider.setApiKey('YOUR_API_KEY');
+        </code>
+    </p>
+
+    <h4>2. Set your environment</h4>
+    <p>
+        <code>
+            StackmobProvider.setEnvironment('0');
+        </code>
+    </p>
+
+    <h4>3. Login</h4>
+    <p>
+        <form class="form-inline" role="form">
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputEmail2">Email address</label>
+                <input type="username" ng-model='user.username' class="form-control" id="exampleInputusername2" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputPassword2">Password</label>
+                <input type="password" ng-model='user.password' class="form-control" id="exampleInputPassword2" placeholder="Password">
+            </div>
+            <button ng-click='login()' type="submit" class="btn btn-default">Sign in</button>
+        </form>
+        <br>
+        loggedInUser = {{loggedInUser | json}}
+        <br>
+        <pre><code>
+$scope.login = function() {
+    Stackmob.login($scope.user.username, $scope.user.password)
+        .then(function(data) {
+            $scope.loggedInUser = data.stackmob.user;
+            $scope.user = {};
+        });
+};</code></pre>
+    </p>
+    <h4>4. Fire away!</h4>
+    <p>
+        <pre>
+            <code>
+$scope.queryEmployees = function() {
+    // remember, Employee is a glorified $resource object!
+    var Employee = Stackmob.schema('employee');
+    $scope.employees = Employee.query();
+};
+            </code>
+        </pre>
+        <div>Query against a collection of 'employees'</div>
+        <button ng-click='queryEmployees()' class="btn btn-success">Query Employees</button>
+        Employees = {{employees | json}}
+    </p>
+    <h3>More Examples</h3>
+    <div>
+        <p>
+            Query for a specific employee, and update them.
+        </p>
+        <form class="form" role="form">
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputEmail2">Email</label>
+                <input type="email" disabled ng-model='employee.email' class="form-control" id="exampleInputemail2" placeholder="Employee email">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputname2">Name</label>
+                <input type="name" ng-model='employee.name' class="form-control" id="exampleInputname2" placeholder="Employee name">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputtitle2">Title</label>
+                <input type="title" ng-model='employee.title' class="form-control" id="exampleInputtitle2" placeholder="Employee title">
+            </div>
+            <button ng-click='getEmployeeByName()' ng-disabled='!employee.name' type="submit" class="btn btn-default">Get Employee By Name</button>
+            <button ng-click='updateEmployee()' ng-disabled='!employee.email' type="submit" class="btn btn-default">Update</button>
+        </form>
+    </div>
+    <div>
+        <p>
+            Create a new employee.
+        </p>
+        <form class="form" role="form">
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputEmail2">Email</label>
+                <input type="email" ng-model='newEmployee.email' class="form-control" id="exampleInputemail2" placeholder="Employee email">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputname2">Name</label>
+                <input type="name" ng-model='newEmployee.name' class="form-control" id="exampleInputname2" placeholder="Employee name">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputtitle2">Title</label>
+                <input type="title" ng-model='newEmployee.title' class="form-control" id="exampleInputtitle2" placeholder="Employee title">
+            </div>
+            <button ng-click='createEmployee()' ng-disabled='!newEmployee.name' type="submit" class="btn btn-default">Create New Employee</button>
+        </form>
+    </div>
+    <div>
+        <p>
+            Delete employee.
+        </p>
+        <form class="form" role="form">
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputEmail2">Email</label>
+                <input type="email" disabled ng-model='deletedEmployee.email' class="form-control" id="exampleInputemail2" placeholder="Employee email">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputtitle2">Title</label>
+                <input type="title" ng-model='deletedEmployee.title' class="form-control" id="exampleInputtitle2" placeholder="Employee title">
+            </div>
+            <button ng-click='getEmployeeByTitle()' ng-disabled='!deletedEmployee.title' type="submit" class="btn btn-default">Get Employee By Title</button>
+            <button ng-click='deleteEmployee()' ng-disabled='!deletedEmployee.email' type="submit" class="btn btn-warning">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="footer">
+    <p>&diams; Collin Forrester</p>
+</div>

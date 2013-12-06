@@ -1,0 +1,29 @@
+{
+  "appPath": "src",
+  "name": "angular-stackmob",
+  "version": "0.0.1",
+  "dependencies": {
+    "crypto-js": "~3.1.2"
+  },
+  "main": "dist/angular-stackmob.js",
+  "ignore": [
+    "src/**/.*",
+    "sample-app/**/.*",
+    ".bowerrc",
+    ".editorconfig",
+    ".gitattributes",
+    ".gitignore",
+    ".jshintrc",
+    ".travis.yml",
+    "bower.json",
+    "package.json",
+    "karma.conf.js",
+    "Gruntfil.js",
+    "node_modules"
+  ],
+  "devDependencies": {
+    "angular": "~1.2.0",
+    "angular-resource": "~1.2.0",
+    "angular-mocks": "~1.2.0"
+  }
+}
