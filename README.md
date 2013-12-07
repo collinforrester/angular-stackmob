@@ -17,7 +17,8 @@ To install angular-stackmob:
 * Install via bower, `bower install --save angular-stackmob`
 * Include `angular-stackmob.js` on your page.
 * In the `.config()` of your module, you need to set your StackMob publicKey and environment
-```
+
+```javascript
 angular.module('yourmodule',['angular-stackmob'])
   .config(function ($httpProvider) {
       StackmobProvider.setApiKey('YOUR_PUBLIC_KEY');
@@ -25,7 +26,8 @@ angular.module('yourmodule',['angular-stackmob'])
   });
 ```
 * Now inject the service in your controller/service/code. The first thing you'll need to do is log in.
-```
+
+```javascript
 angular.module('yourapp')
   .controller('MainCtrl', function ($scope, Stackmob) {
       Stackmob.login('johndoe', 'secret1').then(function(loggedInUser) {
@@ -35,7 +37,8 @@ angular.module('yourapp')
 
 ```
 * Once you've logged the user in, you can use `Stackmob.schema()` to query any schemas you have set up in StackMob.
-```
+
+```javascript
 angular.module('yourapp')
   .controller('MainCtrl', function ($scope, Stackmob) {
     Stackmob.login('test', 'test').then(function(loggedInUser) {
@@ -45,9 +48,24 @@ angular.module('yourapp')
   	});
   });
 ```
+* If the login expires (it will at 1 hour automatically), use `Stackmob.refreshToken()` to log the user back in without reprompting for credentials.
+
+```javascript
+angular.module('yourapp')
+  .controller('MainCtrl', function ($scope, Stackmob) {
+    Stackmob.refreshToken().then(function() {
+      // you're now refreshed
+      var Things = Stackmob.schema('things');
+   	  var allTheThings = Things.query();
+  	});
+  });
+```
+
 * Keep in mind that anything returned by Stackmob.schema() is a glorified angular $resource object.
+* The current API is not a 1-to-1 replacement.
 
 ## Roadmap
+* implement all Stackmob JavaScript SDK functions (resetPassword, forgotPassword, etc)
 * support to provide custom params and actions to the resource object returned by `Stackmob.schema()`
 * .queryBuilder() of some type to set get params for you
 * directive - set schema as directive attribute to have directive populate and handle model for you
