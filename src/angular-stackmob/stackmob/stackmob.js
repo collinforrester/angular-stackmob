@@ -86,8 +86,15 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
             create: create,
             'delete': deleteMethod
           });
-          resource.prototype.$save = function() {
-            if(!this[pk]) {
+          resource.prototype.$save = function () {
+            for(var k in this) {
+              if(this.hasOwnProperty(k)) {
+                if(k !== '$resolved' && k.indexOf('$$') === -1 && typeof this[k] === 'object') {
+                  delete this[k];
+                }
+              }
+            }
+            if (!this[pk]) {
               return this.$create(arguments);
             } else {
               return this.$update(arguments);
