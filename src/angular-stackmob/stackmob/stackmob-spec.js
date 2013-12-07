@@ -4,12 +4,48 @@ describe('Service: Stackmob', function() {
 
   var ua = window.navigator.userAgent;
   var provider;
+  var mockUser1;
+  var mockLoggedInUser;
+  var mockedHeaders;
+
   // load the service's module
   beforeEach(module('angular-stackmob', function($httpProvider, StackmobProvider) {
     provider = StackmobProvider;
     StackmobProvider.setApiKey('xxx');
     StackmobProvider.setEnvironment('0');
     $httpProvider.interceptors.push('stackmobHttpInterceptor');
+    mockUser1 = {
+      sm_owner: 'user1',
+      lastmoddate: 1385009161669,
+      createddate: 1384043194085,
+      title: 'No title',
+      thing_id: 1
+    };
+    mockLoggedInUser = {
+        "access_token": "lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK",
+        "mac_key": "glyuU932UhqhMbozQUMwWG1TGzSmydHZ",
+        "mac_algorithm": "hmac-sha-1",
+        "token_type": "mac",
+        "expires_in": 3600,
+        "refresh_token": "5N114k3uP2dCNDqyb4xLupinSfOtoErI",
+        "stackmob": {
+          "user": {
+            "username": "collin",
+            "lastmoddate": 1385009161669,
+            "user_id": "collin",
+            "sm_owner": "user/collin",
+            "createddate": 1384043194085
+          }
+        }
+      };
+      mockedHeaders = {
+        "X-StackMob-API-Key": "xxx",
+        "X-StackMob-Proxy-Plain": "stackmob-api",
+        "X-StackMob-User-Agent": ua,
+        "Content-Type": "application/json",
+        "Accept": "application/vnd.stackmob+json; version=0",
+        "X-StackMob-API-Key-xxx": 1
+      };
   }));
 
   afterEach(inject(function($httpBackend) {
@@ -44,30 +80,13 @@ describe('Service: Stackmob', function() {
 
   it('should be able to log a user into stackmob oauth 2 style', inject(function(_Stackmob_, $httpBackend) {
     expect(_Stackmob_.login).not.toBe(undefined);
-    var user = {
-      "username": "collin",
-      "lastmoddate": 1385009161669,
-      "user_id": "collin",
-      "sm_owner": "user/collin",
-      "createddate": 1384043194085
-    };
-    $httpBackend.expectPOST('http://api.stackmob.com/user/accessToken?username=collin&password=asdf&token_type=mac').respond(201, {
-      "access_token": "lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK",
-      "mac_key": "glyuU932UhqhMbozQUMwWG1TGzSmydHZ",
-      "mac_algorithm": "hmac-sha-1",
-      "token_type": "mac",
-      "expires_in": 3600,
-      "refresh_token": "5N114k3uP2dCNDqyb4xLupinSfOtoErI",
-      "stackmob": {
-        "user": user
-      }
-    });
+    $httpBackend.expectPOST('http://api.stackmob.com/user/accessToken?username=collin&password=asdf&token_type=mac').respond(201, mockLoggedInUser);
     _Stackmob_.login('collin', 'asdf');
     $httpBackend.flush();
 
     expect(localStorage.getItem('stackmob.access_token')).toBe('lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK');
     expect(localStorage.getItem('stackmob.mac_key')).toBe('glyuU932UhqhMbozQUMwWG1TGzSmydHZ');
-    expect(localStorage.getItem('stackmob.user')).toBe(JSON.stringify(user));
+    expect(localStorage.getItem('stackmob.user')).toBe(JSON.stringify(mockLoggedInUser.stackmob.user));
     expect(localStorage.getItem('stackmob.refresh_token')).toBe('5N114k3uP2dCNDqyb4xLupinSfOtoErI');
   }));
 
@@ -79,30 +98,7 @@ describe('Service: Stackmob', function() {
   it('should change content-type when refreshing token', inject(function($httpBackend, $log, _Stackmob_) {
     localStorage.setItem('stackmob.refresh_token', 'abc');
     $httpBackend
-      .expectPOST('http://api.stackmob.com/user/refreshToken?refresh_token=abc&grant_type=refresh_token&token_type=mac&mac_algorithm=hmac-sha-1', {}, {
-        "X-StackMob-API-Key": "xxx",
-        "X-StackMob-Proxy-Plain": "stackmob-api",
-        "X-StackMob-User-Agent": ua,
-        "Content-Type": "application/json",
-        "Accept": "application/vnd.stackmob+json; version=0",
-        "X-StackMob-API-Key-xxx": 1
-      }).respond(201, {
-        "access_token": "lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK",
-        "mac_key": "glyuU932UhqhMbozQUMwWG1TGzSmydHZ",
-        "mac_algorithm": "hmac-sha-1",
-        "token_type": "mac",
-        "expires_in": 3600,
-        "refresh_token": "5N114k3uP2dCNDqyb4xLupinSfOtoErI",
-        "stackmob": {
-          "user": {
-            "username": "collin",
-            "lastmoddate": 1385009161669,
-            "user_id": "collin",
-            "sm_owner": "user/collin",
-            "createddate": 1384043194085
-          }
-        }
-      });
+      .expectPOST('http://api.stackmob.com/user/refreshToken?refresh_token=abc&grant_type=refresh_token&token_type=mac&mac_algorithm=hmac-sha-1', {}, mockedHeaders).respond(201, mockLoggedInUser);
     _Stackmob_.refreshToken();
     $httpBackend.flush();
 
@@ -131,14 +127,7 @@ describe('Service: Stackmob', function() {
   it('should be able to create (POST) correctly', inject(function($httpBackend, _Stackmob_) {
     $httpBackend.expectPOST('http://api.stackmob.com/thing', {
       title: 'New thing'
-    }, {
-      "X-StackMob-API-Key": "xxx",
-      "X-StackMob-Proxy-Plain": "stackmob-api",
-      "X-StackMob-User-Agent": ua,
-      "Content-Type": "application/json",
-      "Accept": "application/vnd.stackmob+json; version=0",
-      "X-StackMob-API-Key-xxx": 1
-    }).respond(201, '');
+    }, mockedHeaders).respond(201, '');
     var Thing = _Stackmob_.schema('thing');
     var newThing = new Thing();
     newThing.title = 'New thing';
@@ -149,13 +138,7 @@ describe('Service: Stackmob', function() {
   // Stackmob docs are wrong.
   // http://api.stackmob.com/thing/1 is valid to hit to PUT
   it('should be able to modify (PUT) correctly', inject(function($httpBackend, _Stackmob_) {
-    $httpBackend.expectGET('http://api.stackmob.com/thing/1').respond(201, {
-      sm_owner: 'user1',
-      lastmoddate: 1385009161669,
-      createddate: 1384043194085,
-      title: 'No title',
-      thing_id: 1
-    });
+    $httpBackend.expectGET('http://api.stackmob.com/thing/1').respond(201, mockUser1);
     $httpBackend.expectPUT('http://api.stackmob.com/thing/1', {
       title: 'New thing',
       thing_id: 1
@@ -171,13 +154,7 @@ describe('Service: Stackmob', function() {
   }));
 
   it('should be able to read (GET) correctly', inject(function($httpBackend, _Stackmob_) {
-    $httpBackend.expectGET('http://api.stackmob.com/thing/1').respond(201, {
-      sm_owner: 'user1',
-      lastmoddate: 1385009161669,
-      createddate: 1384043194085,
-      title: 'No title',
-      thing_id: 1
-    });
+    $httpBackend.expectGET('http://api.stackmob.com/thing/1').respond(201, mockUser1);
     var Thing = _Stackmob_.schema('thing');
     var thing1 = Thing.get({
       thing_id: 1
