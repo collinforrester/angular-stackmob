@@ -20,7 +20,7 @@ To install angular-stackmob:
 
 ```javascript
 angular.module('yourmodule',['angular-stackmob'])
-  .config(function ($httpProvider) {
+  .config(function ($httpProvider, StackmobProvider) {
       StackmobProvider.setApiKey('YOUR_PUBLIC_KEY');
       StackmobProvider.setEnvironment('0');
   });
