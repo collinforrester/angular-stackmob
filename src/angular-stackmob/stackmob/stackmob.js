@@ -89,8 +89,22 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
           resource.prototype.$save = function () {
             for(var k in this) {
               if(this.hasOwnProperty(k)) {
-                if(k !== '$resolved' && k.indexOf('$$') === -1 && typeof this[k] === 'object') {
-                  delete this[k];
+                if(k.indexOf('$$') === -1 && typeof this[k] === 'object') {
+                  if(this[k] instanceof Array) {
+                    // special case - make sure its a valid array of
+                    // primary keys
+                    var shouldRemove = false;
+                    angular.forEach(this[k], function(item) {
+                      if(typeof item === 'object') {
+                        shouldRemove = true;
+                      }
+                    });
+                    if(shouldRemove) {
+                      delete this[k];
+                    }
+                  } else {
+                    delete this[k];
+                  }
                 }
               }
             }

@@ -191,7 +191,9 @@ describe('Service: Stackmob', function() {
   it('should be able to remove (DELETE) correctly', inject(function($httpBackend, _Stackmob_) {
     $httpBackend.expectDELETE('http://api.stackmob.com/thing/1').respond(201, '');
     var Thing = _Stackmob_.schema('thing');
-    var thing1 = new Thing({thing_id: 1});
+    var thing1 = new Thing({
+      thing_id: 1
+    });
     thing1.$delete();
     $httpBackend.flush();
   }));
@@ -200,7 +202,114 @@ describe('Service: Stackmob', function() {
   it('should be able to use a different primary key', inject(function($httpBackend, _Stackmob_) {
     $httpBackend.expectGET('http://api.stackmob.com/user/jdoe').respond(201, {});
     var User = _Stackmob_.schema('user', 'username');
-    User.get({username: 'jdoe'});
+    User.get({
+      username: 'jdoe'
+    });
+    $httpBackend.flush();
+  }));
+
+  it('should remove any relationship type object from a $save request so stackmob does not throw an invalid schema error', inject(function($httpBackend, _Stackmob_) {
+    $httpBackend.expectGET('http://api.stackmob.com/thing/1').respond(201, {
+      sm_owner: 'user1',
+      lastmoddate: 1385009161669,
+      createddate: 1384043194085,
+      title: 'No title',
+      parentThing: {
+        thing_id: 5,
+        title: 'Parent'
+      },
+      thing_id: 1
+    });
+    $httpBackend.expectPUT('http://api.stackmob.com/thing/1', {
+      title: 'New thing',
+      thing_id: 1
+    }).respond(201, '');
+    var Thing = _Stackmob_.schema('thing');
+    var thing1 = Thing.get({
+      thing_id: 1
+    }, function() {
+      thing1.title = 'New thing';
+      thing1.$save();
+    });
+    $httpBackend.flush();
+  }));
+
+  it('should remove any relationship type arrays from a $save request so stackmob does not throw an invalid schema error', inject(function($httpBackend, _Stackmob_) {
+    $httpBackend.expectGET('http://api.stackmob.com/thing/1').respond(201, {
+      sm_owner: 'user1',
+      lastmoddate: 1385009161669,
+      createddate: 1384043194085,
+      title: 'No title',
+      childrenThings: [{
+        thing_id: 5,
+        title: 'Parent'
+      }, {
+        thing_id: 5,
+        title: 'Parent'
+      }],
+      thing_id: 1
+    });
+    $httpBackend.expectPUT('http://api.stackmob.com/thing/1', {
+      title: 'New thing',
+      thing_id: 1
+    }).respond(201, '');
+    var Thing = _Stackmob_.schema('thing');
+    var thing1 = Thing.get({
+      thing_id: 1
+    }, function() {
+      thing1.title = 'New thing';
+      thing1.$save();
+    });
+    $httpBackend.flush();
+  }));
+
+  it('should remove any relationship type arrays from a $save request so stackmob does not throw an invalid schema error', inject(function($httpBackend, _Stackmob_) {
+    $httpBackend.expectGET('http://api.stackmob.com/thing/1').respond(201, {
+      sm_owner: 'user1',
+      lastmoddate: 1385009161669,
+      createddate: 1384043194085,
+      title: 'No title',
+      childrenThings: ['asdfasdf24f24222', {
+        thing_id: 5,
+        title: 'Parent'
+      }],
+      thing_id: 1
+    });
+    $httpBackend.expectPUT('http://api.stackmob.com/thing/1', {
+      title: 'New thing',
+      thing_id: 1
+    }).respond(201, '');
+    var Thing = _Stackmob_.schema('thing');
+    var thing1 = Thing.get({
+      thing_id: 1
+    }, function() {
+      thing1.title = 'New thing';
+      thing1.$save();
+    });
+    $httpBackend.flush();
+  }));
+
+  it('should NOT remove any valid relationship type arrays from a $save request so stackmob does not throw an invalid schema error', inject(function($httpBackend, _Stackmob_) {
+    $httpBackend.expectGET('http://api.stackmob.com/thing/1').respond(201, {
+      sm_owner: 'user1',
+      lastmoddate: 1385009161669,
+      createddate: 1384043194085,
+      title: 'No title',
+      childrenThings: ['5adbasdf2', '54t45gaerg2'],
+      thing_id: 1
+    });
+    $httpBackend.expectPUT('http://api.stackmob.com/thing/1', {
+      title: 'New thing',
+      thing_id: 1,
+      childrenThings: ['5adbasdf2', '54t45gaerg2']
+    }).respond(201, '');
+    var Thing = _Stackmob_.schema('thing');
+    var thing1 = Thing.get({
+      thing_id: 1
+    }, function() {
+      thing1.title = 'New thing';
+      thing1.$save();
+    });
     $httpBackend.flush();
   }));
 
