@@ -22,30 +22,30 @@ describe('Service: Stackmob', function() {
       thing_id: 1
     };
     mockLoggedInUser = {
-        "access_token": "lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK",
-        "mac_key": "glyuU932UhqhMbozQUMwWG1TGzSmydHZ",
-        "mac_algorithm": "hmac-sha-1",
-        "token_type": "mac",
-        "expires_in": 3600,
-        "refresh_token": "5N114k3uP2dCNDqyb4xLupinSfOtoErI",
-        "stackmob": {
-          "user": {
-            "username": "collin",
-            "lastmoddate": 1385009161669,
-            "user_id": "collin",
-            "sm_owner": "user/collin",
-            "createddate": 1384043194085
-          }
+      "access_token": "lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK",
+      "mac_key": "glyuU932UhqhMbozQUMwWG1TGzSmydHZ",
+      "mac_algorithm": "hmac-sha-1",
+      "token_type": "mac",
+      "expires_in": 3600,
+      "refresh_token": "5N114k3uP2dCNDqyb4xLupinSfOtoErI",
+      "stackmob": {
+        "user": {
+          "username": "collin",
+          "lastmoddate": 1385009161669,
+          "user_id": "collin",
+          "sm_owner": "user/collin",
+          "createddate": 1384043194085
         }
-      };
-      mockedHeaders = {
-        "X-StackMob-API-Key": "xxx",
-        "X-StackMob-Proxy-Plain": "stackmob-api",
-        "X-StackMob-User-Agent": ua,
-        "Content-Type": "application/json",
-        "Accept": "application/vnd.stackmob+json; version=0",
-        "X-StackMob-API-Key-xxx": 1
-      };
+      }
+    };
+    mockedHeaders = {
+      "X-StackMob-API-Key": "xxx",
+      "X-StackMob-Proxy-Plain": "stackmob-api",
+      "X-StackMob-User-Agent": ua,
+      "Content-Type": "application/json",
+      "Accept": "application/vnd.stackmob+json; version=0",
+      "X-StackMob-API-Key-xxx": 1
+    };
   }));
 
   afterEach(inject(function($httpBackend) {
@@ -161,6 +161,22 @@ describe('Service: Stackmob', function() {
     });
     $httpBackend.flush();
     expect(thing1.title).toBe('No title');
+  }));
+
+  it('should be able to query (GET) correctly with orderBy', inject(function($httpBackend, _Stackmob_) {
+    $httpBackend.expectGET('http://api.stackmob.com/thing', {
+      "Accept": "application/vnd.stackmob+json; version=0",
+      "X-StackMob-API-Key": "xxx",
+      "X-StackMob-Proxy-Plain": "stackmob-api",
+      "X-StackMob-User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36",
+      "X-StackMob-API-Key-xxx": 1,
+      "X-StackMob-OrderBy": "createddate:desc,dateout:asc,datein:desc"
+    }).respond(201, [mockUser1]);
+    var Thing = _Stackmob_.schema('thing');
+    var thing1 = Thing.query({
+      orderBy: 'createddate:desc,dateout:asc,datein:desc'
+    });
+    $httpBackend.flush();
   }));
 
   // Stackmob docs are wrong.
