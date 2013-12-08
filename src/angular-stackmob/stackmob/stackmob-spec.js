@@ -174,7 +174,7 @@ describe('Service: Stackmob', function() {
     }).respond(201, [mockUser1]);
     var Thing = _Stackmob_.schema('thing');
     var thing1 = Thing.query({
-      orderBy: 'createddate:desc,dateout:asc,datein:desc'
+      _orderBy: 'createddate:desc,dateout:asc,datein:desc'
     });
     $httpBackend.flush();
   }));
@@ -188,6 +188,16 @@ describe('Service: Stackmob', function() {
       thing_id: 1
     });
     thing1.$delete();
+    $httpBackend.flush();
+  }));
+
+  it('should be able to remove (DELETE) deep objects correctly', inject(function($httpBackend, _Stackmob_) {
+    $httpBackend.expectDELETE('http://api.stackmob.com/thing/1', {"Accept":"application/vnd.stackmob+json; version=0","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36","X-StackMob-API-Key-xxx":1,"X-StackMob-CascadeDelete":true}).respond(201, '');
+    var Thing = _Stackmob_.schema('thing');
+    var thing1 = new Thing({
+      thing_id: 1
+    });
+    thing1.$delete({_cascadeDelete: true});
     $httpBackend.flush();
   }));
 
@@ -303,6 +313,52 @@ describe('Service: Stackmob', function() {
       thing1.title = 'New thing';
       thing1.$save();
     });
+    $httpBackend.flush();
+  }));
+
+  it('should be able to add relationships', inject(function($httpBackend, _Stackmob_) {
+    $httpBackend.expectPOST('http://api.stackmob.com/thing', {
+      title: 'New thing',
+      childThing: {
+        title: 'I am the child'
+      }
+    }, {"Accept":"application/vnd.stackmob+json; version=0","Content-Type":"application/json","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36","X-StackMob-API-Key-xxx":1,"X-StackMob-Relations":"childThing=thing"})
+      .respond(201, '');
+    var Thing = _Stackmob_.schema('thing');
+    var newThing = new Thing();
+    newThing.title = 'New thing';
+    newThing.childThing = {
+      title: 'I am the child'
+    };
+    newThing.$deepSave({_relations: 'childThing=thing'});
+    $httpBackend.flush();
+  }));
+
+  it('should be able to add multiple (array) relationships', inject(function($httpBackend, _Stackmob_) {
+    $httpBackend.expectPOST('http://api.stackmob.com/thing', {
+      title: 'New thing',
+      father: {
+        title: 'I am father',
+        children: [{
+                title: 'I am the child'
+              }, {
+                title: 'I am the child2'
+              }]
+      }
+    }, {"Accept":"application/vnd.stackmob+json; version=0","Content-Type":"application/json","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36","X-StackMob-API-Key-xxx":1,"X-StackMob-Relations":"father=thing&father.children=thing"})
+      .respond(201, '');
+    var Thing = _Stackmob_.schema('thing');
+    var newThing = new Thing();
+    newThing.title = 'New thing';
+    newThing.father = {
+      title: 'I am father',
+      children: [{
+              title: 'I am the child'
+            }, {
+              title: 'I am the child2'
+            }]
+    };
+    newThing.$deepSave({_relations: 'father=thing&father.children=thing'});
     $httpBackend.flush();
   }));
 

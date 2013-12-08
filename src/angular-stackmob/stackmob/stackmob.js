@@ -70,11 +70,24 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
             params: {}
           };
           var create = {
-            method: 'POST'
+            method: 'POST',
+            params: {}
           };
           var deleteMethod = {
             method: 'DELETE',
             params: {}
+          };
+          var deepCreate = {
+            method: 'POST',
+            params: {_relations: '_'}
+          };
+          var deepUpdate = {
+            method: 'PUT',
+            isArray: false,
+            params: {_relations: '_'}
+          };
+          var deepSave = {
+            method: 'PUT'
           };
           update.params[pk] = '@'+pk;
           deleteMethod.params[pk] = '@'+pk;
@@ -84,9 +97,19 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
             resourceParams, {
             update: update,
             create: create,
+            deepSave: deepSave,
+            deepCreate: deepCreate,
+            deepUpdate: deepUpdate,
             'delete': deleteMethod
           });
-          resource.prototype.$save = function () {
+          resource.prototype.$deepSave = function(args) {
+            if (!this[pk]) {
+              return this.$deepCreate(args);
+            } else {
+              return this.$deepUpdate(args);
+            }
+          };
+          resource.prototype.$save = function (args) {
             for(var k in this) {
               if(this.hasOwnProperty(k)) {
                 if(k.indexOf('$$') === -1 && typeof this[k] === 'object') {
@@ -109,9 +132,9 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
               }
             }
             if (!this[pk]) {
-              return this.$create(arguments);
+              return this.$create(args);
             } else {
-              return this.$update(arguments);
+              return this.$update(args);
             }
           };
           return resource;

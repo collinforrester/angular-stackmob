@@ -39,12 +39,29 @@ angular.module('angular-stackmob.httpInterceptor', ['angular-stackmob.utils'])
             var apiKeyHeader = 'X-StackMob-API-Key-' + apiKey;
             config.headers[apiKeyHeader] = 1;
 
+            // relationship headers
+            // must happen before params are processed
+            if(config.params && config.params._relations) {
+              if(config.params._relations !== '_') {
+                config.headers['X-StackMob-Relations'] = config.params._relations;
+              }
+              delete config.params._relations;
+            }
+
             // order by headers
             // must happen before params are processed as they
             // are removed and added as headers
-            if(config.params && config.params.orderBy) {
-              config.headers['X-StackMob-OrderBy'] = config.params.orderBy;
-              delete config.params.orderBy;
+            if(config.params && config.params._orderBy) {
+              config.headers['X-StackMob-OrderBy'] = config.params._orderBy;
+              delete config.params._orderBy;
+            }
+
+            // expand delete headers
+            // must happen before params are processed as they
+            // are removed and added as headers
+            if(config.params && config.params._cascadeDelete) {
+              config.headers['X-StackMob-CascadeDelete'] = config.params._cascadeDelete;
+              delete config.params._cascadeDelete;
             }
 
             // if(config.params && config.params._expand && config.method !== 'GET') {
