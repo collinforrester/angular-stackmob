@@ -23,6 +23,8 @@ angular.module('yourmodule',['angular-stackmob'])
   .config(function ($httpProvider, StackmobProvider) {
       StackmobProvider.setApiKey('YOUR_PUBLIC_KEY');
       StackmobProvider.setEnvironment('0');
+      // optionally set localStorage key namespace
+      StackmobProvider.setLocalStorageKey('namespace');
   });
 ```
 * Now inject the service in your controller/service/code. The first thing you'll need to do is log in.
