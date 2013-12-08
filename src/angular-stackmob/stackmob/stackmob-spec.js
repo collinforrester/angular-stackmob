@@ -168,7 +168,7 @@ describe('Service: Stackmob', function() {
       "Accept": "application/vnd.stackmob+json; version=0",
       "X-StackMob-API-Key": "xxx",
       "X-StackMob-Proxy-Plain": "stackmob-api",
-      "X-StackMob-User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36",
+      "X-StackMob-User-Agent": ua,
       "X-StackMob-API-Key-xxx": 1,
       "X-StackMob-OrderBy": "createddate:desc,dateout:asc,datein:desc"
     }).respond(201, [mockUser1]);
@@ -192,7 +192,7 @@ describe('Service: Stackmob', function() {
   }));
 
   it('should be able to remove (DELETE) deep objects correctly', inject(function($httpBackend, _Stackmob_) {
-    $httpBackend.expectDELETE('http://api.stackmob.com/thing/1', {"Accept":"application/vnd.stackmob+json; version=0","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36","X-StackMob-API-Key-xxx":1,"X-StackMob-CascadeDelete":true}).respond(201, '');
+    $httpBackend.expectDELETE('http://api.stackmob.com/thing/1', {"Accept":"application/vnd.stackmob+json; version=0","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":ua,"X-StackMob-API-Key-xxx":1,"X-StackMob-CascadeDelete":true}).respond(201, '');
     var Thing = _Stackmob_.schema('thing');
     var thing1 = new Thing({
       thing_id: 1
@@ -322,7 +322,7 @@ describe('Service: Stackmob', function() {
       childThing: {
         title: 'I am the child'
       }
-    }, {"Accept":"application/vnd.stackmob+json; version=0","Content-Type":"application/json","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36","X-StackMob-API-Key-xxx":1,"X-StackMob-Relations":"childThing=thing"})
+    }, {"Accept":"application/vnd.stackmob+json; version=0","Content-Type":"application/json","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":ua,"X-StackMob-API-Key-xxx":1,"X-StackMob-Relations":"childThing=thing"})
       .respond(201, '');
     var Thing = _Stackmob_.schema('thing');
     var newThing = new Thing();
@@ -345,7 +345,7 @@ describe('Service: Stackmob', function() {
                 title: 'I am the child2'
               }]
       }
-    }, {"Accept":"application/vnd.stackmob+json; version=0","Content-Type":"application/json","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36","X-StackMob-API-Key-xxx":1,"X-StackMob-Relations":"father=thing&father.children=thing"})
+    }, {"Accept":"application/vnd.stackmob+json; version=0","Content-Type":"application/json","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":ua,"X-StackMob-API-Key-xxx":1,"X-StackMob-Relations":"father=thing&father.children=thing"})
       .respond(201, '');
     var Thing = _Stackmob_.schema('thing');
     var newThing = new Thing();
