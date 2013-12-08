@@ -10,20 +10,21 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
     var apiKey = 'Hello';
     var env = 'LOL';
     var schemaUrl = 'http://api.stackmob.com/';
+    var localStorageKey = 'stackmob';
     // Private constructor
     function Stackmob($log, $resource, $http) {
       var refreshLoginInformation = function(data) {
-        localStorage.setItem('stackmob.access_token', data.data.access_token);
-        localStorage.setItem('stackmob.mac_key', data.data.mac_key);
-        localStorage.setItem('stackmob.user', JSON.stringify(data.data.stackmob.user));
-        localStorage.setItem('stackmob.refresh_token', data.data.refresh_token);
-        localStorage.setItem('stackmob.expires_in', (new Date()).getTime() + data.data.expires_in * 1000);
+        localStorage.setItem(localStorageKey + '.access_token', data.data.access_token);
+        localStorage.setItem(localStorageKey + '.mac_key', data.data.mac_key);
+        localStorage.setItem(localStorageKey + '.user', JSON.stringify(data.data.stackmob.user));
+        localStorage.setItem(localStorageKey + '.refresh_token', data.data.refresh_token);
+        localStorage.setItem(localStorageKey + '.expires_in', (new Date()).getTime() + data.data.expires_in * 1000);
       };
       return {
         refreshToken: function() {
           var promise = $http.post(schemaUrl + 'user/refreshToken', {}, {
             params: {
-              refresh_token: localStorage.getItem('stackmob.refresh_token'),
+              refresh_token: localStorage.getItem(localStorageKey + '.refresh_token'),
               grant_type: 'refresh_token',
               token_type: 'mac',
               mac_algorithm: 'hmac-sha-1'
@@ -38,11 +39,11 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
         logout: function() {
           var promise = $http.get(schemaUrl + 'user/logout');
           promise.then(function() {
-            localStorage.removeItem('stackmob.access_token');
-            localStorage.removeItem('stackmob.mac_key');
-            localStorage.removeItem('stackmob.user');
-            localStorage.removeItem('stackmob.refresh_token');
-            localStorage.removeItem('stackmob.expires_in');
+            localStorage.removeItem(localStorageKey + '.access_token');
+            localStorage.removeItem(localStorageKey + '.mac_key');
+            localStorage.removeItem(localStorageKey + '.user');
+            localStorage.removeItem(localStorageKey + '.refresh_token');
+            localStorage.removeItem(localStorageKey + '.expires_in');
           });
           return promise;
         },
@@ -153,6 +154,9 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
     };
     this.setSchemaUrl = function(s) {
       schemaUrl = s;
+    };
+    this.setLocalStorageKey = function(s) {
+      localStorageKey = s;
     };
     this.getSchemaUrl = function() {
       return schemaUrl;

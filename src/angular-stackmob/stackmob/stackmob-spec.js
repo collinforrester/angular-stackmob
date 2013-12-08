@@ -13,6 +13,7 @@ describe('Service: Stackmob', function() {
     provider = StackmobProvider;
     StackmobProvider.setApiKey('xxx');
     StackmobProvider.setEnvironment('0');
+    StackmobProvider.setLocalStorageKey('stackmob.oauth2');
     $httpProvider.interceptors.push('stackmobHttpInterceptor');
     mockUser1 = {
       sm_owner: 'user1',
@@ -84,10 +85,10 @@ describe('Service: Stackmob', function() {
     _Stackmob_.login('collin', 'asdf');
     $httpBackend.flush();
 
-    expect(localStorage.getItem('stackmob.access_token')).toBe('lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK');
-    expect(localStorage.getItem('stackmob.mac_key')).toBe('glyuU932UhqhMbozQUMwWG1TGzSmydHZ');
-    expect(localStorage.getItem('stackmob.user')).toBe(JSON.stringify(mockLoggedInUser.stackmob.user));
-    expect(localStorage.getItem('stackmob.refresh_token')).toBe('5N114k3uP2dCNDqyb4xLupinSfOtoErI');
+    expect(localStorage.getItem('stackmob.oauth2.access_token')).toBe('lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK');
+    expect(localStorage.getItem('stackmob.oauth2.mac_key')).toBe('glyuU932UhqhMbozQUMwWG1TGzSmydHZ');
+    expect(localStorage.getItem('stackmob.oauth2.user')).toBe(JSON.stringify(mockLoggedInUser.stackmob.user));
+    expect(localStorage.getItem('stackmob.oauth2.refresh_token')).toBe('5N114k3uP2dCNDqyb4xLupinSfOtoErI');
   }));
 
   it('should instantiate by taking the name of the schema to hit against', inject(function($log, _Stackmob_) {
@@ -96,32 +97,32 @@ describe('Service: Stackmob', function() {
   }));
 
   it('should change content-type when refreshing token', inject(function($httpBackend, $log, _Stackmob_) {
-    localStorage.setItem('stackmob.refresh_token', 'abc');
+    localStorage.setItem('stackmob.oauth2.refresh_token', 'abc');
     $httpBackend
       .expectPOST('http://api.stackmob.com/user/refreshToken?refresh_token=abc&grant_type=refresh_token&token_type=mac&mac_algorithm=hmac-sha-1', {}, mockedHeaders).respond(201, mockLoggedInUser);
     _Stackmob_.refreshToken();
     $httpBackend.flush();
 
-    expect(localStorage.getItem('stackmob.access_token')).toBe('lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK');
-    expect(localStorage.getItem('stackmob.mac_key')).toBe('glyuU932UhqhMbozQUMwWG1TGzSmydHZ');
-    expect(localStorage.getItem('stackmob.user')).not.toBe(undefined);
-    expect(localStorage.getItem('stackmob.refresh_token')).toBe('5N114k3uP2dCNDqyb4xLupinSfOtoErI');
+    expect(localStorage.getItem('stackmob.oauth2.access_token')).toBe('lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK');
+    expect(localStorage.getItem('stackmob.oauth2.mac_key')).toBe('glyuU932UhqhMbozQUMwWG1TGzSmydHZ');
+    expect(localStorage.getItem('stackmob.oauth2.user')).not.toBe(undefined);
+    expect(localStorage.getItem('stackmob.oauth2.refresh_token')).toBe('5N114k3uP2dCNDqyb4xLupinSfOtoErI');
   }));
 
   it('should be able to logout', inject(function($httpBackend, _Stackmob_) {
-    localStorage.setItem('stackmob.access_token', 42);
-    localStorage.setItem('stackmob.mac_key', 42);
-    localStorage.setItem('stackmob.user', 42);
-    localStorage.setItem('stackmob.refresh_token', 42);
-    localStorage.setItem('stackmob.expires_in', 42);
+    localStorage.setItem('stackmob.oauth2.access_token', 42);
+    localStorage.setItem('stackmob.oauth2.mac_key', 42);
+    localStorage.setItem('stackmob.oauth2.user', 42);
+    localStorage.setItem('stackmob.oauth2.refresh_token', 42);
+    localStorage.setItem('stackmob.oauth2.expires_in', 42);
     $httpBackend.expectGET('http://api.stackmob.com/user/logout').respond(201, '');
     _Stackmob_.logout();
     $httpBackend.flush();
-    expect(localStorage.getItem('stackmob.access_token')).toBe(null);
-    expect(localStorage.getItem('stackmob.mac_key')).toBe(null);
-    expect(localStorage.getItem('stackmob.user')).toBe(null);
-    expect(localStorage.getItem('stackmob.refresh_token')).toBe(null);
-    expect(localStorage.getItem('stackmob.expires_in')).toBe(null);
+    expect(localStorage.getItem('stackmob.oauth2.access_token')).toBe(null);
+    expect(localStorage.getItem('stackmob.oauth2.mac_key')).toBe(null);
+    expect(localStorage.getItem('stackmob.oauth2.user')).toBe(null);
+    expect(localStorage.getItem('stackmob.oauth2.refresh_token')).toBe(null);
+    expect(localStorage.getItem('stackmob.oauth2.expires_in')).toBe(null);
   }));
 
   it('should be able to create (POST) correctly', inject(function($httpBackend, _Stackmob_) {
