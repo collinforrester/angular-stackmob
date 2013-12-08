@@ -1,10 +1,15 @@
 {
   "appPath": "src",
   "name": "angular-stackmob",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "crypto-js": "~3.1.2"
   },
+  "description":"",
+  "keywords": ["angularjs","stackmob"],
+  "authors": [
+    { "name": "Collin Forrester", "email": "collin.forrester@gmail.com"," homepage": "http://collinforrester.com" }
+  ],
   "main": "dist/angular-stackmob.js",
   "ignore": [
     "src/**/.*",

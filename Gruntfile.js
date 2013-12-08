@@ -174,7 +174,8 @@ module.exports = function (grunt) {
 
     changelog: {
       options: {
-        dest: 'CHANGELOG.md'
+        dest: 'CHANGELOG.md',
+        github: 'collinforrester/angular-stackmob'
       }
     },
 
