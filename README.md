@@ -1,4 +1,5 @@
 # angular-stackmob
+[![Build Status](https://travis-ci.org/collinforrester/angular-stackmob.png?branch=master)](https://travis-ci.org/collinforrester/angular-stackmob)
 ## What is this?
 In another project, our stack was Angular backed by StackMob.  StackMob is amazing.  Big downside was that the StackMob JavaScript SDK is written to work best with Backbone and jQuery.  Neither of which are required with Angular.
 
