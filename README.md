@@ -75,7 +75,7 @@ To order your queries by fields, use the orderBy param.
 
 ```javascript
 var Things = Stackmob.schema('things');
-Things.query(_orderBy:'createddate:asc, lastmodified:asc');
+Things.query({_orderBy:'createddate:asc, lastmodified:asc'});
 ```
 
 #### Expand
@@ -83,7 +83,7 @@ Expand relationships to their full objects with the expand param
 
 ```javascript
 var Things = Stackmob.schema('things');
-Things.query(_expand:1);
+Things.query({_expand:1});
 ```
 
 #### Relations
