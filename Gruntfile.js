@@ -119,6 +119,24 @@ module.exports = function (grunt) {
         files: {
           src: [ 'dist/angular-stackmob.*' ]
         }
+      },
+      iifeTop: {
+        options: {
+          position: 'top',
+          banner: '(function(window, undefined){'
+        },
+        files: {
+          src: ['dist/angular-stackmob.*']
+        }
+      },
+      iifeBottom: {
+        options: {
+          position: 'bottom',
+          banner: '})(window, undefined);'
+        },
+        files: {
+          src: ['dist/angular-stackmob.*']
+        }
       }
     },
     uglify: {

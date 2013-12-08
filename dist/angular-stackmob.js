@@ -1,3 +1,4 @@
+(function(window, undefined){
 /**
 * angular-stackmob.js
 * MIT License
@@ -478,11 +479,24 @@ angular.module('angular-stackmob.stackmob', [
               isArray: false,
               params: {}
             };
-          var create = { method: 'POST' };
+          var create = {
+              method: 'POST',
+              params: {}
+            };
           var deleteMethod = {
               method: 'DELETE',
               params: {}
             };
+          var deepCreate = {
+              method: 'POST',
+              params: { _relations: '_' }
+            };
+          var deepUpdate = {
+              method: 'PUT',
+              isArray: false,
+              params: { _relations: '_' }
+            };
+          var deepSave = { method: 'PUT' };
           update.params[pk] = '@' + pk;
           deleteMethod.params[pk] = '@' + pk;
           var resourceParams = {};
@@ -490,13 +504,42 @@ angular.module('angular-stackmob.stackmob', [
           var resource = $resource(schemaUrl + schemaName + '/:' + pk, resourceParams, {
               update: update,
               create: create,
+              deepSave: deepSave,
+              deepCreate: deepCreate,
+              deepUpdate: deepUpdate,
               'delete': deleteMethod
             });
-          resource.prototype.$save = function () {
+          resource.prototype.$deepSave = function (args) {
             if (!this[pk]) {
-              return this.$create(arguments);
+              return this.$deepCreate(args);
             } else {
-              return this.$update(arguments);
+              return this.$deepUpdate(args);
+            }
+          };
+          resource.prototype.$save = function (args) {
+            for (var k in this) {
+              if (this.hasOwnProperty(k)) {
+                if (k.indexOf('$$') === -1 && typeof this[k] === 'object') {
+                  if (this[k] instanceof Array) {
+                    var shouldRemove = false;
+                    angular.forEach(this[k], function (item) {
+                      if (typeof item === 'object') {
+                        shouldRemove = true;
+                      }
+                    });
+                    if (shouldRemove) {
+                      delete this[k];
+                    }
+                  } else {
+                    delete this[k];
+                  }
+                }
+              }
+            }
+            if (!this[pk]) {
+              return this.$create(args);
+            } else {
+              return this.$update(args);
             }
           };
           return resource;
@@ -562,23 +605,42 @@ angular.module('angular-stackmob.httpInterceptor', ['angular-stackmob.utils']).p
     return {
       'request': function (config) {
         if (config.url.indexOf('api.stackmob.com') > -1) {
+          var contentType = '';
           if (config.url.indexOf('accessToken') > -1) {
-            config.headers['Content-Type'] = 'Content-Type:application/x-www-form-urlencoded';
+            contentType = 'Content-Type:application/x-www-form-urlencoded';
           } else {
-            config.headers['Content-Type'] = 'application/json';
+            contentType = 'application/json';
           }
-          var apiKeyHeader = 'X-StackMob-API-Key-' + apiKey;
-          config.headers = angular.extend({
-            'X-StackMob-API-Key': apiKey,
-            'X-StackMob-Proxy-Plain': 'stackmob-api',
-            'X-StackMob-User-Agent': navigator.userAgent
-          }, config.headers);
-          var params = encodeURI(!!config.params ? '?' + Utils.serializeObject(config.params) : '');
-          config.headers['Authorization'] = Utils.getAuthHeader(config.method, config.url + params);
-          config.headers[apiKeyHeader] = 1;
+          config.headers['X-StackMob-API-Key'] = apiKey;
+          config.headers['X-StackMob-Proxy-Plain'] = 'stackmob-api';
+          config.headers['X-StackMob-User-Agent'] = navigator.userAgent;
+          config.headers['Content-Type'] = contentType;
           config.headers['Accept'] = 'application/vnd.stackmob+json; version=' + env;
+          var apiKeyHeader = 'X-StackMob-API-Key-' + apiKey;
+          config.headers[apiKeyHeader] = 1;
+          if (config.params && config.params._relations) {
+            if (config.params._relations !== '_') {
+              config.headers['X-StackMob-Relations'] = config.params._relations;
+            }
+            delete config.params._relations;
+          }
+          if (config.params && config.params._orderBy) {
+            config.headers['X-StackMob-OrderBy'] = config.params._orderBy;
+            delete config.params._orderBy;
+          }
+          if (config.params && config.params._cascadeDelete) {
+            config.headers['X-StackMob-CascadeDelete'] = config.params._cascadeDelete;
+            delete config.params._cascadeDelete;
+          }
+          if (typeof config.params === 'object') {
+            if (Object.keys(config.params).length === 0) {
+              delete config.params;
+            }
+          }
+          var params = encodeURI(!!config.params ? '?' + Utils.serializeObject(config.params) : '');
           config.url = config.url + params;
           delete config.params;
+          config.headers['Authorization'] = Utils.getAuthHeader(config.method, config.url);
           if (config.data) {
             delete config.data.sm_owner;
             delete config.data.createddate;
@@ -642,3 +704,4 @@ angular.module('angular-stackmob', ['angular-stackmob.stackmob']).config([
     $httpProvider.interceptors.push('stackmobHttpInterceptor');
   }
 ]);
+})(window, undefined);
