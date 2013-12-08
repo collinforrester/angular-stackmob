@@ -1,4 +1,5 @@
 # angular-stackmob
+[![Build Status](https://travis-ci.org/collinforrester/angular-stackmob.png?branch=master)](https://travis-ci.org/collinforrester/angular-stackmob)
 ## What is this?
 In another project, our stack was Angular backed by StackMob.  StackMob is amazing.  Big downside was that the StackMob JavaScript SDK is written to work best with Backbone and jQuery.  Neither of which are required with Angular.
 
@@ -65,6 +66,35 @@ angular.module('yourapp')
 
 * Keep in mind that anything returned by Stackmob.schema() is a glorified angular $resource object.
 * The current API is not a 1-to-1 replacement.
+
+### Special Query Params
+There are some special query paramters availabe to use that the http interceptor will use to add Stackmob headers.
+
+#### Order By
+To order your queries by fields, use the orderBy param.
+
+```javascript
+var Things = Stackmob.schema('things');
+Things.query(_orderBy:'createddate:asc, lastmodified:asc');
+```
+
+#### Expand
+Expand relationships to their full objects with the expand param
+
+```javascript
+var Things = Stackmob.schema('things');
+Things.query(_expand:1);
+```
+
+#### Relations
+To create a nested object with the relationships defined as objects, you need to use the relations param or the library will delete any objects attached to the request.
+
+```javascript
+var Things = Stackmob.schema('things');
+var newThing = new Thing();
+newThing.child = {title: 'I am child'};
+newThing.$deepSave({_relations:'child=thing'});
+```
 
 ## Roadmap
 * implement all Stackmob JavaScript SDK functions (resetPassword, forgotPassword, etc)
