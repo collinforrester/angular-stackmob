@@ -1,5 +1,6 @@
 node_modules
 dist
+stackmob.keys.json
 .tmp
 .sass-cache
 src/bower_components

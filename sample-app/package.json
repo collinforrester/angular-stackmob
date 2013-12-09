@@ -39,7 +39,8 @@
     "karma-coffee-preprocessor": "~0.1.1",
     "karma-phantomjs-launcher": "~0.1.1",
     "karma": "~0.10.7",
-    "karma-ng-html2js-preprocessor": "~0.1.0"
+    "karma-ng-html2js-preprocessor": "~0.1.0",
+    "grunt-text-replace": "~0.3.10"
   },
   "engines": {
     "node": ">=0.8.0"

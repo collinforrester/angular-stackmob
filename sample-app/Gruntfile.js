@@ -110,6 +110,25 @@ module.exports = function (grunt) {
       }
     },
 
+    replace: {
+      addKey: {
+        src: ['app/scripts/app.js'],
+        dest: 'app/scripts/app.js',
+        replacements: [{
+          from: 'YOUR_API_KEY',
+          to: require('../stackmob.keys.json').dev
+        }]
+      },
+      removeKey: {
+        src: ['app/scripts/app.js'],
+        dest: 'app/scripts/app.js',
+        replacements: [{
+          from: require('../stackmob.keys.json').dev,
+          to: 'YOUR_API_KEY'
+        }]
+      }
+    },
+
     // Empties folders to start fresh
     clean: {
       dist: {
@@ -360,10 +379,12 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
+      'replace:addKey',
       'concurrent:server',
       'autoprefixer',
       'connect:livereload',
-      'watch'
+      'watch',
+      'replace:removeKey'
     ]);
   });
 
