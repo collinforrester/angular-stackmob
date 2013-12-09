@@ -4,7 +4,7 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
   .config(function($httpProvider) {
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
   })
-  .provider('Stackmob', function(stackmobHttpInterceptorProvider) {
+  .provider('Stackmob', function(stackmobHttpInterceptorProvider, UtilsProvider) {
 
     // Private variables
     var apiKey = 'Hello';
@@ -157,6 +157,7 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
     };
     this.setLocalStorageKey = function(s) {
       localStorageKey = s;
+      UtilsProvider.setLocalStorageKey(s);
     };
     this.getSchemaUrl = function() {
       return schemaUrl;

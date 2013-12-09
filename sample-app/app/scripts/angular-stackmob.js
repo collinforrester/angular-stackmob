@@ -415,7 +415,8 @@ angular.module('angular-stackmob.stackmob', [
   }
 ]).provider('Stackmob', [
   'stackmobHttpInterceptorProvider',
-  function (stackmobHttpInterceptorProvider) {
+  'UtilsProvider',
+  function (stackmobHttpInterceptorProvider, UtilsProvider) {
     var apiKey = 'Hello';
     var env = 'LOL';
     var schemaUrl = 'http://api.stackmob.com/';
@@ -552,6 +553,7 @@ angular.module('angular-stackmob.stackmob', [
     };
     this.setLocalStorageKey = function (s) {
       localStorageKey = s;
+      UtilsProvider.setLocalStorageKey(s);
     };
     this.getSchemaUrl = function () {
       return schemaUrl;
@@ -656,42 +658,53 @@ angular.module('angular-stackmob.httpInterceptor', ['angular-stackmob.utils']).p
   ];
 });
 'use strict';
-angular.module('angular-stackmob.utils', []).service('Utils', function Utils() {
-  this.serializeObject = function (obj) {
-    var pairs = [];
-    for (var prop in obj) {
-      if (!obj.hasOwnProperty(prop)) {
-        continue;
+angular.module('angular-stackmob.utils', []).provider('Utils', function Utils() {
+  var localStorageKey = 'stackmob';
+  this.setLocalStorageKey = function (s) {
+    localStorageKey = s;
+  };
+  function Utils() {
+    return {
+      serializeObject: function (obj) {
+        var pairs = [];
+        for (var prop in obj) {
+          if (!obj.hasOwnProperty(prop)) {
+            continue;
+          }
+          pairs.push(prop + '=' + obj[prop]);
+        }
+        return pairs.join('&');
+      },
+      createBaseString: function (ts, nonce, method, uri, host, port) {
+        var nl = '\n';
+        return ts + nl + nonce + nl + method + nl + uri + nl + host + nl + port + nl + nl;
+      },
+      generateMAC: function (httpVerb, accessToken, macKey, hostWithPort, url, _ts, _nonce, _hash) {
+        var splitHost = hostWithPort.split(':');
+        var hostNoPort = splitHost.length > 1 ? splitHost[0] : hostWithPort;
+        var port = splitHost.length > 1 ? splitHost[1] : 80;
+        var ts = _ts || Math.round(new Date().getTime() / 1000);
+        var nonce = _nonce || 'n' + Math.round(Math.random() * 10000);
+        var base = this.createBaseString(ts, nonce, httpVerb, url, hostNoPort, port);
+        var hash = CryptoJS.HmacSHA1(base, macKey);
+        var mac = _hash || hash.toString(CryptoJS.enc.Base64);
+        return 'MAC id="' + accessToken + '",ts="' + ts + '",nonce="' + nonce + '",mac="' + mac + '"';
+      },
+      getAuthHeader: function (httpVerb, url) {
+        var host = 'http://api.stackmob.com/';
+        var path = url.replace(new RegExp(host, 'g'), '/');
+        var hostWithPort = host.replace(new RegExp('^http://|^https://', 'g'), '').replace(new RegExp('/'), '');
+        var accessToken = localStorage.getItem(localStorageKey + '.access_token');
+        var macKey = localStorage.getItem(localStorageKey + '.mac_key');
+        if (accessToken && macKey) {
+          var authHeader = this.generateMAC(httpVerb, accessToken, macKey, hostWithPort, path);
+          return authHeader;
+        }
       }
-      pairs.push(prop + '=' + obj[prop]);
-    }
-    return pairs.join('&');
-  };
-  this.createBaseString = function (ts, nonce, method, uri, host, port) {
-    var nl = '\n';
-    return ts + nl + nonce + nl + method + nl + uri + nl + host + nl + port + nl + nl;
-  };
-  this.generateMAC = function (httpVerb, accessToken, macKey, hostWithPort, url, _ts, _nonce, _hash) {
-    var splitHost = hostWithPort.split(':');
-    var hostNoPort = splitHost.length > 1 ? splitHost[0] : hostWithPort;
-    var port = splitHost.length > 1 ? splitHost[1] : 80;
-    var ts = _ts || Math.round(new Date().getTime() / 1000);
-    var nonce = _nonce || 'n' + Math.round(Math.random() * 10000);
-    var base = this.createBaseString(ts, nonce, httpVerb, url, hostNoPort, port);
-    var hash = CryptoJS.HmacSHA1(base, macKey);
-    var mac = _hash || hash.toString(CryptoJS.enc.Base64);
-    return 'MAC id="' + accessToken + '",ts="' + ts + '",nonce="' + nonce + '",mac="' + mac + '"';
-  };
-  this.getAuthHeader = function (httpVerb, url) {
-    var host = 'http://api.stackmob.com/';
-    var path = url.replace(new RegExp(host, 'g'), '/');
-    var hostWithPort = host.replace(new RegExp('^http://|^https://', 'g'), '').replace(new RegExp('/'), '');
-    var accessToken = localStorage.getItem('stackmob.access_token');
-    var macKey = localStorage.getItem('stackmob.mac_key');
-    if (accessToken && macKey) {
-      var authHeader = this.generateMAC(httpVerb, accessToken, macKey, hostWithPort, path);
-      return authHeader;
-    }
+    };
+  }
+  this.$get = function () {
+    return new Utils();
   };
 });
 angular.module('angular-stackmob', ['angular-stackmob.stackmob']).config([
