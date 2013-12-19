@@ -443,6 +443,23 @@ angular.module('angular-stackmob.stackmob', [
           promise.then(refreshLoginInformation);
           return promise;
         },
+        forgotPassword: function (username) {
+          return $http.post(schemaUrl + 'user/forgotPassword', { username: username });
+        },
+        customCode: function (httpMethod, methodName, body, params) {
+          return $http({
+            data: body,
+            method: httpMethod,
+            url: schemaUrl + methodName,
+            params: params
+          });
+        },
+        resetPassword: function (old, newpw) {
+          return $http.post(schemaUrl + 'user/resetPassword', {
+            old: { password: old },
+            'new': { password: newpw }
+          });
+        },
         logout: function () {
           var promise = $http.get(schemaUrl + 'user/logout');
           promise.then(function () {
@@ -452,6 +469,17 @@ angular.module('angular-stackmob.stackmob', [
             localStorage.removeItem(localStorageKey + '.refresh_token');
             localStorage.removeItem(localStorageKey + '.expires_in');
           });
+          return promise;
+        },
+        loginWithTemporaryAndResetPassword: function (username, temppassword, newpassword) {
+          var promise = $http.post(schemaUrl + 'user/accessToken', {}, {
+              params: {
+                password: temppassword,
+                username: username,
+                new_password: newpassword
+              }
+            });
+          promise.then(refreshLoginInformation);
           return promise;
         },
         login: function (username, pw) {
