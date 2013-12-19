@@ -79,10 +79,55 @@ describe('Service: Stackmob', function() {
     expect($log.error.logs).not.toContain(['Must set environment before using.']);
   }));
 
+  it('should be able to POST forgot password', inject(function(_Stackmob_, $httpBackend) {
+    $httpBackend.expectPOST('http://api.stackmob.com/user/forgotPassword', {
+      username: 'collin'
+    }).respond(201, '');
+    _Stackmob_.forgotPassword('collin');
+    $httpBackend.flush();
+  }));
+
+  it('should be able to POST for custom code', inject(function(_Stackmob_, $httpBackend) {
+    $httpBackend.expectPOST('http://api.stackmob.com/sendgrid/email', {
+      to: 'e@mail.com',
+      text: 'hello world'
+    }).respond(201, '');
+    _Stackmob_.customCode('POST', 'sendgrid/email', {
+      to: 'e@mail.com',
+      text: 'hello world'
+    });
+    $httpBackend.flush();
+  }));
+
+  it('should be able to POST reset password', inject(function(_Stackmob_, $httpBackend) {
+    $httpBackend.expectPOST('http://api.stackmob.com/user/resetPassword', {
+      "old": {
+        "password": "oldpw"
+      },
+      "new": {
+        "password": "newpw"
+      }
+    }).respond(201, '');
+    _Stackmob_.resetPassword('oldpw', 'newpw');
+    $httpBackend.flush();
+  }));
+
   it('should be able to log a user into stackmob oauth 2 style', inject(function(_Stackmob_, $httpBackend) {
     expect(_Stackmob_.login).not.toBe(undefined);
     $httpBackend.expectPOST('http://api.stackmob.com/user/accessToken?username=collin&password=asdf&token_type=mac').respond(201, mockLoggedInUser);
     _Stackmob_.login('collin', 'asdf');
+    $httpBackend.flush();
+
+    expect(localStorage.getItem('stackmob.oauth2.access_token')).toBe('lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK');
+    expect(localStorage.getItem('stackmob.oauth2.mac_key')).toBe('glyuU932UhqhMbozQUMwWG1TGzSmydHZ');
+    expect(localStorage.getItem('stackmob.oauth2.user')).toBe(JSON.stringify(mockLoggedInUser.stackmob.user));
+    expect(localStorage.getItem('stackmob.oauth2.refresh_token')).toBe('5N114k3uP2dCNDqyb4xLupinSfOtoErI');
+  }));
+
+  it('should be able to log a user into stackmob oauth 2 style', inject(function(_Stackmob_, $httpBackend) {
+    expect(_Stackmob_.loginWithTemporaryAndResetPassword).not.toBe(undefined);
+    $httpBackend.expectPOST('http://api.stackmob.com/user/accessToken?password=temppassword&username=johndoe&new_password=newpassword').respond(201, mockLoggedInUser);
+    _Stackmob_.loginWithTemporaryAndResetPassword('johndoe', 'temppassword', 'newpassword');
     $httpBackend.flush();
 
     expect(localStorage.getItem('stackmob.oauth2.access_token')).toBe('lkkTwTm951R1yqQj3FxIiwaiVVn7ZLmK');
@@ -193,12 +238,21 @@ describe('Service: Stackmob', function() {
   }));
 
   it('should be able to remove (DELETE) deep objects correctly', inject(function($httpBackend, _Stackmob_) {
-    $httpBackend.expectDELETE('http://api.stackmob.com/thing/1', {"Accept":"application/vnd.stackmob+json; version=0","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":ua,"X-StackMob-API-Key-xxx":1,"X-StackMob-CascadeDelete":true}).respond(201, '');
+    $httpBackend.expectDELETE('http://api.stackmob.com/thing/1', {
+      "Accept": "application/vnd.stackmob+json; version=0",
+      "X-StackMob-API-Key": "xxx",
+      "X-StackMob-Proxy-Plain": "stackmob-api",
+      "X-StackMob-User-Agent": ua,
+      "X-StackMob-API-Key-xxx": 1,
+      "X-StackMob-CascadeDelete": true
+    }).respond(201, '');
     var Thing = _Stackmob_.schema('thing');
     var thing1 = new Thing({
       thing_id: 1
     });
-    thing1.$delete({_cascadeDelete: true});
+    thing1.$delete({
+      _cascadeDelete: true
+    });
     $httpBackend.flush();
   }));
 
@@ -323,7 +377,15 @@ describe('Service: Stackmob', function() {
       childThing: {
         title: 'I am the child'
       }
-    }, {"Accept":"application/vnd.stackmob+json; version=0","Content-Type":"application/json","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":ua,"X-StackMob-API-Key-xxx":1,"X-StackMob-Relations":"childThing=thing"})
+    }, {
+      "Accept": "application/vnd.stackmob+json; version=0",
+      "Content-Type": "application/json",
+      "X-StackMob-API-Key": "xxx",
+      "X-StackMob-Proxy-Plain": "stackmob-api",
+      "X-StackMob-User-Agent": ua,
+      "X-StackMob-API-Key-xxx": 1,
+      "X-StackMob-Relations": "childThing=thing"
+    })
       .respond(201, '');
     var Thing = _Stackmob_.schema('thing');
     var newThing = new Thing();
@@ -331,7 +393,9 @@ describe('Service: Stackmob', function() {
     newThing.childThing = {
       title: 'I am the child'
     };
-    newThing.$deepSave({_relations: 'childThing=thing'});
+    newThing.$deepSave({
+      _relations: 'childThing=thing'
+    });
     $httpBackend.flush();
   }));
 
@@ -341,12 +405,20 @@ describe('Service: Stackmob', function() {
       father: {
         title: 'I am father',
         children: [{
-                title: 'I am the child'
-              }, {
-                title: 'I am the child2'
-              }]
+          title: 'I am the child'
+        }, {
+          title: 'I am the child2'
+        }]
       }
-    }, {"Accept":"application/vnd.stackmob+json; version=0","Content-Type":"application/json","X-StackMob-API-Key":"xxx","X-StackMob-Proxy-Plain":"stackmob-api","X-StackMob-User-Agent":ua,"X-StackMob-API-Key-xxx":1,"X-StackMob-Relations":"father=thing&father.children=thing"})
+    }, {
+      "Accept": "application/vnd.stackmob+json; version=0",
+      "Content-Type": "application/json",
+      "X-StackMob-API-Key": "xxx",
+      "X-StackMob-Proxy-Plain": "stackmob-api",
+      "X-StackMob-User-Agent": ua,
+      "X-StackMob-API-Key-xxx": 1,
+      "X-StackMob-Relations": "father=thing&father.children=thing"
+    })
       .respond(201, '');
     var Thing = _Stackmob_.schema('thing');
     var newThing = new Thing();
@@ -354,12 +426,14 @@ describe('Service: Stackmob', function() {
     newThing.father = {
       title: 'I am father',
       children: [{
-              title: 'I am the child'
-            }, {
-              title: 'I am the child2'
-            }]
+        title: 'I am the child'
+      }, {
+        title: 'I am the child2'
+      }]
     };
-    newThing.$deepSave({_relations: 'father=thing&father.children=thing'});
+    newThing.$deepSave({
+      _relations: 'father=thing&father.children=thing'
+    });
     $httpBackend.flush();
   }));
 
