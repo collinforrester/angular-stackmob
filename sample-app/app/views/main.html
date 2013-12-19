@@ -57,74 +57,87 @@ $scope.login = function() {
     <p>
         <pre>
             <code>
-$scope.queryEmployees = function() {
-    // remember, Employee is a glorified $resource object!
-    var Employee = Stackmob.schema('employee');
-    $scope.employees = Employee.query();
+$scope.queryPersons = function() {
+    // remember, Person is a glorified $resource object!
+    var Person = Stackmob.schema('person');
+    $scope.people = Person.query();
 };
             </code>
         </pre>
-        <div>Query against a collection of 'employees'</div>
-        <button ng-click='queryEmployees()' class="btn btn-success">Query Employees</button>
-        Employees = {{employees | json}}
+        <div>Query against a collection of 'people'</div>
+        <button ng-click='queryPeople()' class="btn btn-success">Query People</button>
+        People = {{people | json}}
     </p>
     <h3>More Examples</h3>
     <div>
         <p>
-            Query for a specific employee, and update them.
+            Query for a specific person, and update them.
         </p>
         <form class="form" role="form">
             <div class="form-group">
-                <label class="sr-only" for="exampleInputEmail2">Email</label>
-                <input type="email" disabled ng-model='employee.email' class="form-control" id="exampleInputemail2" placeholder="Employee email">
+                <label class="sr-only" for="exampleInputEmail2">Age</label>
+                <input type="number" ng-model='person.age' class="form-control" id="exampleInputemail2" placeholder="Person age">
             </div>
             <div class="form-group">
                 <label class="sr-only" for="exampleInputname2">Name</label>
-                <input type="name" ng-model='employee.name' class="form-control" id="exampleInputname2" placeholder="Employee name">
+                <input type="name" ng-model='person.name' class="form-control" id="exampleInputname2" placeholder="Person name">
             </div>
-            <div class="form-group">
-                <label class="sr-only" for="exampleInputtitle2">Title</label>
-                <input type="title" ng-model='employee.title' class="form-control" id="exampleInputtitle2" placeholder="Employee title">
-            </div>
-            <button ng-click='getEmployeeByName()' ng-disabled='!employee.name' type="submit" class="btn btn-default">Get Employee By Name</button>
-            <button ng-click='updateEmployee()' ng-disabled='!employee.email' type="submit" class="btn btn-default">Update</button>
+            <button ng-click='getPersonByName()' ng-disabled='!person.name' type="submit" class="btn btn-default">Get Person By Name</button>
+            <button ng-click='updatePerson()' ng-disabled='!person.age' type="submit" class="btn btn-default">Update</button>
         </form>
     </div>
     <div>
         <p>
-            Create a new employee.
+            Create a new person.
         </p>
         <form class="form" role="form">
             <div class="form-group">
                 <label class="sr-only" for="exampleInputEmail2">Email</label>
-                <input type="email" ng-model='newEmployee.email' class="form-control" id="exampleInputemail2" placeholder="Employee email">
+                <input type="number" ng-model='newPerson.age' class="form-control" id="exampleInputemail2" placeholder="Person age">
             </div>
             <div class="form-group">
                 <label class="sr-only" for="exampleInputname2">Name</label>
-                <input type="name" ng-model='newEmployee.name' class="form-control" id="exampleInputname2" placeholder="Employee name">
+                <input type="text" ng-model='newPerson.name' class="form-control" id="exampleInputname2" placeholder="Person name">
             </div>
-            <div class="form-group">
-                <label class="sr-only" for="exampleInputtitle2">Title</label>
-                <input type="title" ng-model='newEmployee.title' class="form-control" id="exampleInputtitle2" placeholder="Employee title">
-            </div>
-            <button ng-click='createEmployee()' ng-disabled='!newEmployee.name' type="submit" class="btn btn-default">Create New Employee</button>
+            <button ng-click='createPerson()' ng-disabled='!newPerson.name' type="submit" class="btn btn-default">Create New Person</button>
         </form>
     </div>
     <div>
         <p>
-            Delete employee.
+            Delete Person.
         </p>
         <form class="form" role="form">
             <div class="form-group">
-                <label class="sr-only" for="exampleInputEmail2">Email</label>
-                <input type="email" disabled ng-model='deletedEmployee.email' class="form-control" id="exampleInputemail2" placeholder="Employee email">
+                <label class="sr-only" for="exampleInputEmail2">Age</label>
+                <input type="number" disabled ng-model='deletedPerson.age' class="form-control" id="exampleInputemail2" placeholder="Person age">
             </div>
             <div class="form-group">
-                <label class="sr-only" for="exampleInputtitle2">Title</label>
-                <input type="title" ng-model='deletedEmployee.title' class="form-control" id="exampleInputtitle2" placeholder="Employee title">
+                <label class="sr-only" for="exampleInputtitle2">Name</label>
+                <input type="text" ng-model='deletedPerson.name' class="form-control" id="exampleInputtitle2" placeholder="Person name">
             </div>
-            <button ng-click='getEmployeeByTitle()' ng-disabled='!deletedEmployee.title' type="submit" class="btn btn-default">Get Employee By Title</button>
-            <button ng-click='deleteEmployee()' ng-disabled='!deletedEmployee.email' type="submit" class="btn btn-warning">Delete</button>
+            <button ng-click='getPersonForDelete()' ng-disabled='!deletedPerson.name' type="submit" class="btn btn-default">Get Person By Name</button>
+            <button ng-click='deleteEmployee()' ng-disabled='!deletedPerson.email' type="submit" class="btn btn-warning">Delete</button>
+        </form>
+    </div>
+    <br>
+    <div>
+        <p>
+            Deep save - add a new person to <code>children</code>.
+        </p>
+        <form class="form" role="form">
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputEmail2">Age</label>
+                <input type="number" ng-model='newChild.age' class="form-control" id="exampleInputemail2" placeholder="Person age">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputtitle2">Name</label>
+                <input type="text" ng-model='newChild.name' class="form-control" id="exampleInputtitle2" placeholder="Person name">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputtitle2">Parent's Name</label>
+                <input type="text" ng-model='personToAddTo.name' class="form-control" id="exampleInputtitle2" placeholder="Parent's name">
+            </div>
+            <button ng-click='addNewChild()' ng-disabled='!newChild.name' type="submit" class="btn btn-default">Add New Child</button>
         </form>
     </div>
 </div>

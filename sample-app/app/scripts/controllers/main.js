@@ -10,41 +10,62 @@ angular.module('sampleAppApp')
   				$scope.user = {};
   			});
   	};
-    $scope.createEmployee = function() {
-
-      var Employee = Stackmob.schema('employee');
-      var newEmployee = new Employee();
-      newEmployee.name = $scope.newEmployee.name;
-      newEmployee.email = $scope.newEmployee.email;
-      newEmployee.title = $scope.newEmployee.title;
-      newEmployee.$save();
-      $scope.newEmployee = {};
-    };
-  	$scope.queryEmployees = function() {
-  		var Employee = Stackmob.schema('employee');
-  		$scope.employees = Employee.query();
-  	};
-    $scope.updateEmployee = function() {
-      $scope.employee.$update();
-      $scope.employee = {};
-    };
-    $scope.getEmployeeByName = function() {
-      var Employee = Stackmob.schema('employee');
-      var results = Employee.query({name:$scope.employee.name}, function() {
-        if(results.length > 0) {
-          $scope.employee = results[0];
+    $scope.addNewChild = function() {
+      var Person = Stackmob.schema('person');
+      var newChild = new Person({
+        name: $scope.newChild.name,
+        age: $scope.newChild.age
+      });
+      var results = Person.query({name: $scope.personToAddTo.name }, function() {
+        if(results.length) {
+          var owner = results[0];
+          if(owner.children) {
+            owner.children.push(newChild);
+          } else {
+            owner.children = [newChild];
+          }
+          owner.$deepSave({_relations:'children=person'}).then(function() {
+            $scope.newChild = {};
+            $scope.personToAddTo = {};
+          });
         }
       });
     };
-    $scope.deleteEmployee = function() {
-      $scope.deletedEmployee.$delete();
-      $scope.deletedEmployee = {};
+    $scope.createPerson = function() {
+
+      var Person = Stackmob.schema('person');
+      var newPerson = new Person();
+      newPerson.name = $scope.newPerson.name;
+      newPerson.age = $scope.newPerson.age;
+      newPerson.$save();
+      $scope.newPerson = {};
     };
-    $scope.getEmployeeByTitle = function() {
-      var Employee = Stackmob.schema('employee');
-      var results = Employee.query({title:$scope.deletedEmployee.title}, function() {
+  	$scope.queryPeople = function() {
+  		var Person = Stackmob.schema('person');
+  		$scope.people = Person.query();
+  	};
+    $scope.updatePerson = function() {
+      $scope.person.$update();
+      $scope.person = {};
+    };
+    $scope.getPersonByName = function() {
+      var Person = Stackmob.schema('person');
+      var results = Person.query({name:$scope.person.name}, function() {
+        console.log('back', results);
         if(results.length > 0) {
-          $scope.deletedEmployee = results[0];
+          $scope.person = results[0];
+        }
+      });
+    };
+    $scope.deletePerson = function() {
+      $scope.deletedPerson.$delete();
+      $scope.deletedPerson = {};
+    };
+    $scope.getPersonForDelete = function() {
+      var Person = Stackmob.schema('person');
+      var results = Person.query({title:$scope.deletedPerson.title}, function() {
+        if(results.length > 0) {
+          $scope.deletedPerson = results[0];
         }
       });
     };
