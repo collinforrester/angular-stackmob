@@ -1,7 +1,7 @@
 {
   "appPath": "src",
   "name": "angular-stackmob",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "dependencies": {
     "crypto-js": "~3.1.2"
   },
