@@ -21,6 +21,8 @@ angular.module('angular-stackmob.stackmob', ['angular-stackmob.httpInterceptor',
         localStorage.setItem(localStorageKey + '.expires_in', (new Date()).getTime() + data.data.expires_in * 1000);
       };
       return {
+        // _ denotes private, exposed for testing
+        _refreshLoginInformation: refreshLoginInformation,
         refreshToken: function() {
           var promise = $http.post(schemaUrl + 'user/refreshToken', {}, {
             params: {

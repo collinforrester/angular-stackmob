@@ -238,7 +238,7 @@ describe('Service: Stackmob', function() {
   }));
 
   it('should be able to remove (DELETE) deep objects correctly', inject(function($httpBackend, _Stackmob_) {
-    $httpBackend.expectDELETE('http://api.stackmob.com/thing/1', {
+    $httpBackend.expectDELETE('http://api.stackmob.com/thing/1/childThings/1,2,3,4', {
       "Accept": "application/vnd.stackmob+json; version=0",
       "X-StackMob-API-Key": "xxx",
       "X-StackMob-Proxy-Plain": "stackmob-api",
@@ -248,10 +248,14 @@ describe('Service: Stackmob', function() {
     }).respond(201, '');
     var Thing = _Stackmob_.schema('thing');
     var thing1 = new Thing({
-      thing_id: 1
+      thing_id: 1,
+      childThings: [1,2,3,4]
     });
     thing1.$delete({
-      _cascadeDelete: true
+      _cascadeDelete: {
+        schema: 'childThings',
+        values: thing1.childThings
+      }
     });
     $httpBackend.flush();
   }));
@@ -435,6 +439,15 @@ describe('Service: Stackmob', function() {
       _relations: 'father=thing&father.children=thing'
     });
     $httpBackend.flush();
+  }));
+
+  it('does not call refreshLoginInformation on a failed call', inject(function(_Stackmob_, $httpBackend) {
+    expect(_Stackmob_._refreshLoginInformation).not.toBe(undefined);
+    spyOn(_Stackmob_, '_refreshLoginInformation');
+    $httpBackend.expectPOST('http://api.stackmob.com/user/accessToken?username=collin&password=asdf&token_type=mac').respond(401, {error_description: 'Invalid username/password.'});
+    _Stackmob_.login('collin', 'asdf');
+    $httpBackend.flush();
+    expect(_Stackmob_._refreshLoginInformation).not.toHaveBeenCalled();
   }));
 
   // should be able to build queries?

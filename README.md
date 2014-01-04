@@ -96,6 +96,29 @@ newThing.child = {title: 'I am child'};
 newThing.$deepSave({_relations:'child=thing'});
 ```
 
+#### Cascading Deletes
+To delete an object and all of it's related objects (only 1 allowed), use the built in `$delete` method combined with the _cascadeDelete param.  See the unit test below for usage.
+
+```javascript
+it('should be able to remove (DELETE) deep objects correctly', inject(function($httpBackend, _Stackmob_) {
+  $httpBackend.expectDELETE('http://api.stackmob.com/thing/1/childThings/1,2,3,4').respond(201, '');
+  var Thing = _Stackmob_.schema('thing');
+  var thing1 = new Thing({
+    thing_id: 1,
+    childThings: [1,2,3,4]
+  });
+  thing1.$delete({
+    _cascadeDelete: {
+      schema: 'childThings',
+      values: thing1.childThings
+    }
+  });
+  $httpBackend.flush();
+}));
+```
+
+The important thing to note is that `_cascadeDelete.values` must be the primary keys of the related objects you want to delete.  This means if you are deleting on an object that you originally queried with expand >= 1, you'll need to loop through the nested objects and grab their IDs and pass them instead.
+
 ## Roadmap
 * implement all Stackmob JavaScript SDK functions (resetPassword, forgotPassword, etc)
 * support to provide custom params and actions to the resource object returned by `Stackmob.schema()`

@@ -60,7 +60,8 @@ angular.module('angular-stackmob.httpInterceptor', ['angular-stackmob.utils'])
             // must happen before params are processed as they
             // are removed and added as headers
             if(config.params && config.params._cascadeDelete) {
-              config.headers['X-StackMob-CascadeDelete'] = config.params._cascadeDelete;
+              config.headers['X-StackMob-CascadeDelete'] = true;
+              config.url += '/' + config.params._cascadeDelete.schema + '/' + config.params._cascadeDelete.values.join(',');
               delete config.params._cascadeDelete;
             }
 
