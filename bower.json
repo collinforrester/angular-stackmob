@@ -1,9 +1,8 @@
 {
   "appPath": "src",
   "name": "angular-stackmob",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "dependencies": {
-    "crypto-js": "~3.1.2"
   },
   "description":"",
   "keywords": ["angularjs","stackmob"],
@@ -27,6 +26,7 @@
     "node_modules"
   ],
   "devDependencies": {
+    "crypto-js": "~3.1.2",
     "angular": "~1.2.0",
     "angular-resource": "~1.2.0",
     "angular-mocks": "~1.2.0"

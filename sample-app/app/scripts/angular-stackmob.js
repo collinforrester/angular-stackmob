@@ -430,6 +430,7 @@ angular.module('angular-stackmob.stackmob', [
         localStorage.setItem(localStorageKey + '.expires_in', new Date().getTime() + data.data.expires_in * 1000);
       };
       return {
+        _refreshLoginInformation: refreshLoginInformation,
         refreshToken: function () {
           var promise = $http.post(schemaUrl + 'user/refreshToken', {}, {
               params: {
@@ -655,7 +656,8 @@ angular.module('angular-stackmob.httpInterceptor', ['angular-stackmob.utils']).p
             delete config.params._orderBy;
           }
           if (config.params && config.params._cascadeDelete) {
-            config.headers['X-StackMob-CascadeDelete'] = config.params._cascadeDelete;
+            config.headers['X-StackMob-CascadeDelete'] = true;
+            config.url += '/' + config.params._cascadeDelete.schema + '/' + config.params._cascadeDelete.values.join(',');
             delete config.params._cascadeDelete;
           }
           if (typeof config.params === 'object') {
